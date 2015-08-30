@@ -42,18 +42,19 @@ pub fn find_on_urban_dict (word: &str) -> Option<DictDef> {
 
         if let Some(panel_ele) = get_first_match(&doc, "div.def-panel") {
             let panel = panel_ele.as_node();
-            let word_ele = get_first_match(panel, "a.word").unwrap();
-            let word_node = word_ele.as_node();
-            let word = word_node.first_child().unwrap();
-            let word_text = word.as_text().unwrap().borrow();
+            if let Some(word_ele) = get_first_match(panel, "a.word") {
+                let word_node = word_ele.as_node();
+                let word = word_node.first_child().unwrap();
+                let word_text = word.as_text().unwrap().borrow();
 
-            let def_ele = get_first_match(panel, "div.meaning").unwrap();
-            let def_node = def_ele.as_node();
-            let def = def_node.first_child().unwrap();
-            let def_text = def.as_text().unwrap().borrow();
+                let def_ele = get_first_match(panel, "div.meaning").unwrap();
+                let def_node = def_ele.as_node();
+                let def = def_node.first_child().unwrap();
+                let def_text = def.as_text().unwrap().borrow();
 
-            return Some(DictDef::new(word_text.trim().to_owned(),
-                                     def_text.trim().to_owned()));
+                return Some(DictDef::new(word_text.trim().to_owned(),
+                                         def_text.trim().to_owned()));
+            }
         }
     }
 
