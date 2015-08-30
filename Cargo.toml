@@ -7,3 +7,4 @@ authors = ["Ning Sun <sunng@about.me>"]
 clap = "*"
 hyper = "*"
 kuchiki =  { git = "https://github.com/SimonSapin/kuchiki" }
+ansi_term = "*"

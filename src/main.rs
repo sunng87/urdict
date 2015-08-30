@@ -1,8 +1,10 @@
 extern crate kuchiki;
 extern crate hyper;
 extern crate clap;
+extern crate ansi_term;
 
 use clap::App;
+use ansi_term::Colour::{Red, Yellow};
 
 mod page;
 
@@ -16,8 +18,8 @@ fn main() {
         .get_matches();
     let word = matches.value_of("WORD").unwrap();
     if let Some(def) = page::find_on_urban_dict(&word) {
-        println!("{}: {}", def.word, def.def)
+        println!("{}: {}", Yellow.bold().paint(&def.word), def.def)
     } else {
-        println!("Word not found");
+        println!("{}", Red.paint("Word not found"));
     }
 }
