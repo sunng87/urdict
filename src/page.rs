@@ -52,7 +52,8 @@ pub fn find_on_urban_dict (word: &str) -> Option<DictDef> {
             let def = def_node.first_child().unwrap();
             let def_text = def.as_text().unwrap().borrow();
 
-            return Some(DictDef::new(word_text.clone(), def_text.clone()));
+            return Some(DictDef::new(word_text.trim().to_owned(),
+                                     def_text.trim().to_owned()));
         }
     }
 
