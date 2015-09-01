@@ -3,14 +3,16 @@ use kuchiki::{Html, NodeRef, NodeDataRef, ElementData};
 
 pub struct DictDef {
     pub word: String,
-    pub def: String
+    pub def: String,
+    pub example: Option<String>
 }
 
 impl DictDef {
-    pub fn new (word: String, def: String) -> DictDef {
+    pub fn new (word: String, def: String, example: Option<String>) -> DictDef {
         DictDef {
             word: word,
-            def: def
+            def: def,
+            example: example
         }
     }
 }
@@ -44,16 +46,15 @@ pub fn find_on_urban_dict (word: &str) -> Option<DictDef> {
             let panel = panel_ele.as_node();
             if let Some(word_ele) = get_first_match(panel, "a.word") {
                 let word_node = word_ele.as_node();
-                let word = word_node.first_child().unwrap();
-                let word_text = word.as_text().unwrap().borrow();
+                let word_text = word_node.text_contents();
 
                 let def_ele = get_first_match(panel, "div.meaning").unwrap();
                 let def_node = def_ele.as_node();
-                let def = def_node.first_child().unwrap();
-                let def_text = def.as_text().unwrap().borrow();
+                let def_text = def_node.text_contents();
 
                 return Some(DictDef::new(word_text.trim().to_owned(),
-                                         def_text.trim().to_owned()));
+                                         def_text.trim().to_owned(),
+                                         None));
             }
         }
     }
