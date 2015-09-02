@@ -14,11 +14,16 @@ fn main() {
         .author("Ning Sun <sunng@about.me>")
         .about("Urban Dictionary from command-line")
         .args_from_usage(
-            "<WORD> 'Word to find on Urban Dictionary'")
+            "<WORD> 'Word to find on Urban Dictionary'
+             [example]... -e 'Show example if any'")
         .get_matches();
     let word = matches.value_of("WORD").unwrap();
     if let Some(def) = page::find_on_urban_dict(&word) {
-        println!("{}: {}", Yellow.bold().paint(&def.word), def.def)
+        println!("{}\n{}", Yellow.bold().paint(&def.word), def.def);
+        if matches.occurrences_of("example") > 0 &&
+            def.example.is_some(){
+            println!("\nExample: {}", def.example.unwrap());
+        }
     } else {
         println!("{}", Red.paint("Word not found"));
     }

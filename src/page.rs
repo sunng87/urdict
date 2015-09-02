@@ -1,6 +1,7 @@
 use hyper::Client;
 use kuchiki::{Html, NodeRef, NodeDataRef, ElementData};
 
+#[derive(Debug)]
 pub struct DictDef {
     pub word: String,
     pub def: String,
@@ -52,9 +53,16 @@ pub fn find_on_urban_dict (word: &str) -> Option<DictDef> {
                 let def_node = def_ele.as_node();
                 let def_text = def_node.text_contents();
 
+                let example = if let Some(example_ele) = get_first_match(panel, "div.example") {
+                    let example_node = example_ele.as_node();
+                    Some(example_node.text_contents())
+                } else {
+                    None
+                };
+
                 return Some(DictDef::new(word_text.trim().to_owned(),
                                          def_text.trim().to_owned(),
-                                         None));
+                                         example));
             }
         }
     }
