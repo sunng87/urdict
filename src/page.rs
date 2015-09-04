@@ -50,6 +50,10 @@ fn get_node_text(node_data: &NodeDataRef<ElementData>) -> String {
     node.text_contents()
 }
 
+fn json_list_to_strings(json: &str) -> Vec<String> {
+    json[1..json.len()-1].split(", ").map(|s| s[1..s.len()-1].to_owned()).collect()
+}
+
 fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
     if let Some(word_ele) = get_first_match(panel, "a.word") {
         let word_text = get_node_text(&word_ele);
@@ -70,6 +74,11 @@ fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
         let date_node = author_ele.as_node().next_sibling().unwrap();
         let date_text = date_node.as_text().unwrap().borrow().trim().to_owned();
 
+        let sounds_ele = get_first_match(panel, "a.play-sound").unwrap();
+        let sounds_node = sounds_ele.as_node();
+        let sounds_json_list = get_attribute_from_node(&sounds_node, "data-urls").unwrap_or("[]".to_owned());
+        let sounds = json_list_to_strings(&sounds_json_list);
+
         Some(DictDef {
             word: word_text.trim().to_owned(),
             def: def_text.trim().to_owned(),
@@ -79,7 +88,7 @@ fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
             contributor: author,
             date: date_text,
             id: defid,
-            sounds: Vec::new()
+            sounds: sounds
         })
     } else {
         None

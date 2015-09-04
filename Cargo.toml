@@ -9,3 +9,4 @@ hyper = "*"
 kuchiki =  { git = "https://github.com/SimonSapin/kuchiki" }
 ansi_term = "*"
 string_cache = "*"
+rand = "*"
