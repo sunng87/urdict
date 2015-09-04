@@ -5,17 +5,16 @@ use kuchiki::{Html, NodeRef, NodeDataRef, ElementData};
 pub struct DictDef {
     pub word: String,
     pub def: String,
-    pub example: Option<String>
+    pub example: Option<String>,
+    pub upvote: i32,
+    pub downvote: i32,
+    pub contributor: String,
+    pub date: String,
+    pub id: String,
+    pub sounds: Vec<String>
 }
 
 impl DictDef {
-    pub fn new (word: String, def: String, example: Option<String>) -> DictDef {
-        DictDef {
-            word: word,
-            def: def,
-            example: example
-        }
-    }
 }
 
 fn urban_dict_url (word: &str) -> String {
@@ -49,9 +48,17 @@ fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
             None
         };
 
-        Some(DictDef::new(word_text.trim().to_owned(),
-                          def_text.trim().to_owned(),
-                          example))
+        Some(DictDef {
+            word: word_text.trim().to_owned(),
+            def: def_text.trim().to_owned(),
+            example: example,
+            upvote: 0,
+            downvote: 0,
+            contributor: "".to_owned(),
+            date: "".to_owned(),
+            id: "".to_owned(),
+            sounds: Vec::new()
+        })
     } else {
         None
     }
