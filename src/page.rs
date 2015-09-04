@@ -84,12 +84,10 @@ fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
     }
 }
 
-pub fn find_on_urban_dict (word: &str) -> Option<DictDef> {
-    let url = urban_dict_url(word);
-
+fn find_from_url(url: &str) -> Option<DictDef> {
     let client = Client::new();
 
-    let mut response = client.get(&url).send().unwrap();
+    let mut response = client.get(url).send().unwrap();
 
     if let Ok(html) = Html::from_stream(&mut response) {
         let doc = html.parse();
@@ -101,4 +99,13 @@ pub fn find_on_urban_dict (word: &str) -> Option<DictDef> {
     }
 
     None
+}
+
+pub fn find_word_of_the_day() -> Option<DictDef> {
+    find_from_url("http://www.urbandictionary.com/")
+}
+
+pub fn find_on_urban_dict (word: &str) -> Option<DictDef> {
+    let url = urban_dict_url(word);
+    find_from_url(&url)
 }
