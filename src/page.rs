@@ -1,5 +1,7 @@
 use hyper::Client;
 use kuchiki::{Html, NodeRef, NodeDataRef, ElementData};
+use string_cache::namespace::{Namespace, QualName};
+use string_cache::atom::Atom;
 
 #[derive(Debug)]
 pub struct DictDef {
@@ -32,21 +34,39 @@ fn get_first_match(node: &NodeRef, selector: &str) -> Option<NodeDataRef<Element
     }
 }
 
+fn get_attribute_from_node(panel: &NodeRef, attr_name: &str) -> Option<String> {
+    if let Some(panel_ele) = panel.as_element() {
+        let attr_map = panel_ele.attributes.borrow();
+        if let Some(attr_value) = attr_map.get(
+            &QualName::new(Namespace(Atom::from_slice("")), Atom::from_slice(attr_name))) {
+            return Some(attr_value.clone());
+        }
+    }
+    None
+}
+
+fn get_node_text(node_data: &NodeDataRef<ElementData>) -> String {
+    let node = node_data.as_node();
+    node.text_contents()
+}
+
 fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
     if let Some(word_ele) = get_first_match(panel, "a.word") {
-        let word_node = word_ele.as_node();
-        let word_text = word_node.text_contents();
+        let word_text = get_node_text(&word_ele);
 
         let def_ele = get_first_match(panel, "div.meaning").unwrap();
-        let def_node = def_ele.as_node();
-        let def_text = def_node.text_contents();
+        let def_text = get_node_text(&def_ele);
+
+        let defid = get_attribute_from_node(panel, "data-defid").unwrap_or("".to_owned());
 
         let example = if let Some(example_ele) = get_first_match(panel, "div.example") {
-            let example_node = example_ele.as_node();
-            Some(example_node.text_contents())
+            Some(get_node_text(&example_ele))
         } else {
             None
         };
+
+        let author_ele = get_first_match(panel, "a.author").unwrap();
+        let author = get_node_text(&author_ele);
 
         Some(DictDef {
             word: word_text.trim().to_owned(),
@@ -54,9 +74,9 @@ fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
             example: example,
             upvote: 0,
             downvote: 0,
-            contributor: "".to_owned(),
+            contributor: author,
             date: "".to_owned(),
-            id: "".to_owned(),
+            id: defid,
             sounds: Vec::new()
         })
     } else {

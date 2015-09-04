@@ -1,4 +1,5 @@
 extern crate kuchiki;
+extern crate string_cache;
 extern crate hyper;
 extern crate clap;
 extern crate ansi_term;
@@ -20,10 +21,12 @@ fn main() {
     let word = matches.value_of("WORD").unwrap();
     if let Some(def) = page::find_on_urban_dict(&word) {
         println!("{}\n{}", Yellow.bold().paint(&def.word), def.def);
-        if matches.occurrences_of("example") > 0 &&
-            def.example.is_some(){
-            println!("\nExample: {}", def.example.unwrap());
-        }
+        println!("");
+        if matches.occurrences_of("example") > 0
+            && def.example.is_some(){
+                println!("Example: {}", def.example.unwrap());
+            }
+        println!("({} on {}, Def ID: {})", def.contributor, def.date, def.id);
     } else {
         println!("{}", Red.paint("Word not found"));
     }
