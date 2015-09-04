@@ -67,6 +67,8 @@ fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
 
         let author_ele = get_first_match(panel, "a.author").unwrap();
         let author = get_node_text(&author_ele);
+        let date_node = author_ele.as_node().next_sibling().unwrap();
+        let date_text = date_node.as_text().unwrap().borrow().trim().to_owned();
 
         Some(DictDef {
             word: word_text.trim().to_owned(),
@@ -75,7 +77,7 @@ fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
             upvote: 0,
             downvote: 0,
             contributor: author,
-            date: "".to_owned(),
+            date: date_text,
             id: defid,
             sounds: Vec::new()
         })
