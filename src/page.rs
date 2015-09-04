@@ -74,10 +74,13 @@ fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
         let date_node = author_ele.as_node().next_sibling().unwrap();
         let date_text = date_node.as_text().unwrap().borrow().trim().to_owned();
 
-        let sounds_ele = get_first_match(panel, "a.play-sound").unwrap();
-        let sounds_node = sounds_ele.as_node();
-        let sounds_json_list = get_attribute_from_node(&sounds_node, "data-urls").unwrap_or("[]".to_owned());
-        let sounds = json_list_to_strings(&sounds_json_list);
+        let sounds = if let Some(sounds_ele) = get_first_match(panel, "a.play-sound") {
+            let sounds_node = sounds_ele.as_node();
+            let sounds_json_list = get_attribute_from_node(&sounds_node, "data-urls").unwrap_or("[]".to_owned());
+            json_list_to_strings(&sounds_json_list)
+        } else {
+            Vec::new()
+        };
 
         Some(DictDef {
             word: word_text.trim().to_owned(),
