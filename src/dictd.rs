@@ -18,15 +18,15 @@ let mut reader = BufReader::new(stream.try_clone().unwrap());
         if line_len > 0{
             println!("{}", line);
             let pieces: Vec<&str> = line.trim().split(" ").collect();
-            match pieces[0] {
+            match pieces[0].to_lowercase().as_ref() {
                 "define" => {
                     let word = pieces[2].replace("\"", "");
+                    println!("{}", word);
 
                     if let Some(def) = page::find_on_urban_dict(&word) {
-                        stream.write("250 ok\r\n".as_bytes()).unwrap();
-                        stream.write(format!("150 {} definitions received\r\n", 1).as_bytes()).unwrap();
+                        stream.write(format!("150 {} definitions retrieved\r\n", 1).as_bytes()).unwrap();
 
-                        stream.write(format!("151 \"{}\"", def.word).as_bytes()).unwrap();
+                        stream.write(format!("151 \"{}\" gcide", def.word).as_bytes()).unwrap();
                         stream.write(format!(" \"Urban Dictionary {} {}\"\r\n", def.contributor, def.date).as_bytes()).unwrap();
                         stream.write(format!("{}\r\n.\r\n", def.def).as_bytes()).unwrap();
 
@@ -40,6 +40,9 @@ let mut reader = BufReader::new(stream.try_clone().unwrap());
                     stream.write("221 bye\r\n".as_bytes()).unwrap();
                     break;
                 },
+                "client" => {
+                    stream.write("250 ok\r\n".as_bytes()).unwrap();
+                }
                 _ => {
                     println!("{}", line.trim());
                 }
