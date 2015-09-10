@@ -36,6 +36,11 @@ let mut reader = BufReader::new(stream.try_clone().unwrap());
                         //TODO
                     }
                 },
+                "match" => {
+                    // TODO
+                    stream.write("152 0 matches found\r\n".as_bytes()).unwrap();
+                    stream.write("250 ok\r\n".as_bytes()).unwrap();
+                }
                 "quit" => {
                     stream.write("221 bye\r\n".as_bytes()).unwrap();
                     break;
