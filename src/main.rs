@@ -18,12 +18,12 @@ mod dictd;
 
 fn main() {
     let matches = App::new("urdict")
-        .version("0.1")
+        .version("0.2.0")
         .author("Ning Sun <sunng@about.me>")
         .about("Urban Dictionary from command-line")
         .args_from_usage(
             "[WORD]... 'Word to find on Urban Dictionary'
-             [example]... -e 'Show example if any'
+             [compact]... -c 'Output definition only'
              [sound]... -s 'Print a sound url only'
              [daemon]... -d 'Run urdict as a dictd server'
              --port=[port] 'The port to listen to, default: 2628'
@@ -47,13 +47,18 @@ fn main() {
     };
     if let Some(def) = def {
         if matches.occurrences_of("sound") == 0 {
-            println!("{}\n{}", Yellow.bold().paint(&def.word), def.def);
-            println!("");
-            if matches.occurrences_of("example") > 0
-                && def.example.is_some(){
-                    println!("Example: {}", def.example.unwrap());
-                }
-            println!("(Author: {}, {}, Def ID: {})", def.contributor, def.date, def.id);
+            let compact = matches.occurrences_of("compact") > 0;
+            if !compact {
+                println!("{}", Yellow.bold().paint(&def.word));
+            }
+            println!("{}", def.def);
+            if !compact && def.example.is_some(){
+                println!("");
+                println!("Example:\n{}", def.example.unwrap());
+            }
+            if !compact {
+                println!("(Author: {}, {}, Def ID: {})", def.contributor, def.date, def.id);
+            }
         } else {
             if !def.sounds.is_empty() {
                 let mut rng = thread_rng();
