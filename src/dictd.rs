@@ -16,29 +16,38 @@ let mut reader = BufReader::new(stream.try_clone().unwrap());
         let mut line = String::new();
         let line_len = reader.read_line(&mut line).unwrap();
         if line_len > 0{
-            println!("{}", line);
             let pieces: Vec<&str> = line.trim().split(" ").collect();
             match pieces[0].to_lowercase().as_ref() {
                 "define" => {
                     let word = pieces[2].replace("\"", "");
-                    println!("{}", word);
 
                     if let Some(def) = page::find_on_urban_dict(&word) {
                         stream.write(format!("150 {} definitions retrieved\r\n", 1).as_bytes()).unwrap();
 
-                        stream.write(format!("151 \"{}\" gcide", def.word).as_bytes()).unwrap();
+                        stream.write(format!("151 \"{}\" urdict", def.word).as_bytes()).unwrap();
                         stream.write(format!(" \"Urban Dictionary {} {}\"\r\n", def.contributor, def.date).as_bytes()).unwrap();
                         stream.write(format!("{}\r\n.\r\n", def.def).as_bytes()).unwrap();
-
-                        stream.write("250 ok\r\n".as_bytes()).unwrap();
-                        println!("found {}", word);
                     } else {
-                        //TODO
+                        stream.write(format!("150 0 definitions retrieved\r\n").as_bytes()).unwrap();
                     }
+                    stream.write("250 ok\r\n".as_bytes()).unwrap();
                 },
                 "match" => {
-                    // TODO
-                    stream.write("152 0 matches found\r\n".as_bytes()).unwrap();
+                    let word = pieces[3].replace("\"", "");
+                    if let Some(def) = page::find_on_urban_dict(&word) {
+                        if let Some(similars) = def.similars {
+                            stream.write(format!("152 {} matches found\r\n", similars.len()).as_bytes()).unwrap();
+                            for s in similars {
+                                stream.write(format!("urdict \"{}\"\r\n", s).as_bytes()).unwrap();
+                            }
+                            stream.write(".\r\n".as_bytes()).unwrap();
+                        } else {
+                            stream.write("152 0 matches found\r\n".as_bytes()).unwrap();
+                        }
+                    } else {
+                        stream.write("152 0 matches found\r\n".as_bytes()).unwrap();
+                    }
+
                     stream.write("250 ok\r\n".as_bytes()).unwrap();
                 }
                 "quit" => {
