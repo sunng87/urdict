@@ -27,7 +27,8 @@ fn main() {
              [sound]... -s 'Print a sound url only'
              [daemon]... -d 'Run urdict as a dictd server'
              --port=[port] 'The port to listen to, default: 2628'
-             --host=[host] 'The host to listen to, default: 127.0.0.1'")
+             --host=[host] 'The host to listen to, default: 127.0.0.1'
+             [debug]... --debug 'Print debug information'")
         .get_matches();
 
     // running as daemon
@@ -46,6 +47,10 @@ fn main() {
         page::find_word_of_the_day()
     };
     if let Some(def) = def {
+        if matches.occurrences_of("debug") > 0 {
+            println!("{:?}", def);
+        }
+
         if matches.occurrences_of("sound") == 0 {
             let compact = matches.occurrences_of("compact") > 0;
             if !compact {
@@ -60,9 +65,9 @@ fn main() {
                 println!("(Author: {}, {}, Def ID: {})", def.contributor, def.date, def.id);
             }
         } else {
-            if !def.sounds.is_empty() {
+            if let Some(sounds) = def.sounds {
                 let mut rng = thread_rng();
-                let sample: Vec<&String> = sample(&mut rng, def.sounds.iter(), 1);
+                let sample: Vec<&String> = sample(&mut rng, sounds.iter(), 1);
                 println!("{}", sample[0]);
             } else {
                 exit(128);

@@ -13,7 +13,8 @@ pub struct DictDef {
     pub contributor: String,
     pub date: String,
     pub id: String,
-    pub sounds: Vec<String>
+    pub sounds: Option<Vec<String>>,
+    pub similars: Option<Vec<String>>
 }
 
 impl DictDef {
@@ -54,45 +55,57 @@ fn json_list_to_strings(json: &str) -> Vec<String> {
     json[1..json.len()-1].split(", ").map(|s| s[1..s.len()-1].to_owned()).collect()
 }
 
-fn get_def_from_page_ele (panel: &NodeRef) -> Option<DictDef> {
-    if let Some(word_ele) = get_first_match(panel, "a.word") {
-        let word_text = get_node_text(&word_ele);
+fn get_def_from_doc (doc: &NodeRef) -> Option<DictDef> {
+    if let Some(panel_ele) = get_first_match(doc, "div.def-panel") {
+        let panel = panel_ele.as_node();
+        if let Some(word_ele) = get_first_match(panel, "a.word") {
+            let word_text = get_node_text(&word_ele);
 
-        let def_ele = get_first_match(panel, "div.meaning").unwrap();
-        let def_text = get_node_text(&def_ele);
+            let def_ele = get_first_match(&panel, "div.meaning").unwrap();
+            let def_text = get_node_text(&def_ele);
 
-        let defid = get_attribute_from_node(panel, "data-defid").unwrap_or("".to_owned());
+            let defid = get_attribute_from_node(panel, "data-defid").unwrap_or("".to_owned());
 
-        let example = if let Some(example_ele) = get_first_match(panel, "div.example") {
-            Some(get_node_text(&example_ele))
+            let example = if let Some(example_ele) = get_first_match(&panel, "div.example") {
+                Some(get_node_text(&example_ele))
+            } else {
+                None
+            };
+
+            let author_ele = get_first_match(&panel, "a.author").unwrap();
+            let author = get_node_text(&author_ele);
+            let date_node = author_ele.as_node().next_sibling().unwrap();
+            let date_text = date_node.as_text().unwrap().borrow().trim().to_owned();
+
+            let sounds = if let Some(sounds_ele) = get_first_match(&panel, "a.play-sound") {
+                let sounds_node = sounds_ele.as_node();
+                let sounds_json_list = get_attribute_from_node(&sounds_node, "data-urls").unwrap_or("[]".to_owned());
+                Some(json_list_to_strings(&sounds_json_list))
+            } else {
+                None
+            };
+
+            let similars = if let Ok(similar_eles) = doc.select("ul.alphabetical li a") {
+                Some(similar_eles.map(|item| item.as_node().text_contents()).collect())
+            } else {
+                None
+            };
+
+            Some(DictDef {
+                word: word_text.trim().to_owned(),
+                def: def_text.trim().to_owned(),
+                example: example,
+                upvote: 0,
+                downvote: 0,
+                contributor: author,
+                date: date_text,
+                id: defid,
+                sounds: sounds,
+                similars: similars
+            })
         } else {
             None
-        };
-
-        let author_ele = get_first_match(panel, "a.author").unwrap();
-        let author = get_node_text(&author_ele);
-        let date_node = author_ele.as_node().next_sibling().unwrap();
-        let date_text = date_node.as_text().unwrap().borrow().trim().to_owned();
-
-        let sounds = if let Some(sounds_ele) = get_first_match(panel, "a.play-sound") {
-            let sounds_node = sounds_ele.as_node();
-            let sounds_json_list = get_attribute_from_node(&sounds_node, "data-urls").unwrap_or("[]".to_owned());
-            json_list_to_strings(&sounds_json_list)
-        } else {
-            Vec::new()
-        };
-
-        Some(DictDef {
-            word: word_text.trim().to_owned(),
-            def: def_text.trim().to_owned(),
-            example: example,
-            upvote: 0,
-            downvote: 0,
-            contributor: author,
-            date: date_text,
-            id: defid,
-            sounds: sounds
-        })
+        }
     } else {
         None
     }
@@ -105,14 +118,10 @@ fn find_from_url(url: &str) -> Option<DictDef> {
 
     if let Ok(html) = Html::from_stream(&mut response) {
         let doc = html.parse();
-
-        if let Some(panel_ele) = get_first_match(&doc, "div.def-panel") {
-            let panel = panel_ele.as_node();
-            return get_def_from_page_ele(panel);
-        }
+        get_def_from_doc(&doc)
+    } else {
+        None
     }
-
-    None
 }
 
 pub fn find_word_of_the_day() -> Option<DictDef> {
