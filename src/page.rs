@@ -1,3 +1,5 @@
+use std::io::Read;
+
 use hyper::Client;
 
 use select::dom::Dom;
@@ -32,19 +34,21 @@ fn json_list_to_strings(json: &str) -> Vec<String> {
 }
 
 fn get_def_from_doc (doc: &Dom) -> Option<DictDef> {
-    if let Some(panel) = dom.find(Class("def-panel")).first() {
+    if let Some(panel) = doc.find(Class("def-panel")).first() {
         if let Some(word) = panel.find(Class("word")).first() {
             let word = word.text();
 
             let def = panel.find(Class("meaning")).first().unwrap().text();
-            let defid = panel.attr("data-defid").unwrap_or("".to_owned());
+            let defid = panel.attr("data-defid").unwrap_or("").to_owned();
 
-            let example = panel.find(Class("example")).first().and_then(|e| Some(e.text())).unwrap_or("".to_owned());
+            let example = panel.find(Class("example")).first().and_then(|e| Some(e.text()));
             let author = panel.find(Class("author")).first().and_then(|e| Some(e.text())).unwrap_or("".to_owned());
-            let date = panel.find(Class("author")).first().and_then(|e| e.next()).and_then(|e| Some(e.text())).unwrap_or("".to_owned());
-            let sounds = json_list_to_strings(&(panel.find(Class("play-sound")).first().and_then(|e| e.attr("data-urls")).unwrap_or("[]".to_owned())));
+            let date = panel.find(Class("author")).first().and_then(|e| e.next()).and_then(|e| Some(e.text().trim().to_owned())).unwrap_or("".to_owned());
 
-            let similars = doc.find(Name("ul").and(Class("alphabetical"))).find(Name("li")).find(Name("a")).iter().map(|e| e.text());
+            let sounds = panel.find(Class("play-sound")).first().and_then(|e| e.attr("data-urls").and_then(|s| Some(s.to_owned()))).and_then(|l| Some(json_list_to_strings(&l)));
+
+            let similars = Some(doc.find(Name("ul").and(Class("alphabetical"))).find(Name("li")).find(Name("a")).iter().map(|e| e.text()).collect());
+
             Some(DictDef {
                 word: word.trim().to_owned(),
                 def: def.trim().to_owned(),
@@ -68,11 +72,13 @@ fn get_def_from_doc (doc: &Dom) -> Option<DictDef> {
 fn find_from_url(url: &str) -> Option<DictDef> {
     let client = Client::new();
 
-    let mut response = client.get(url).send().unwrap();
+    let mut resp = client.get(url).send().unwrap();
     let mut body = String::new();
-    resp.read_to_string(&mut body).unwrap();
+    {
+        resp.read_to_string(&mut body).unwrap();
+    }
 
-    let dom = Dom::from_str(body);
+    let dom = Dom::from_str(&body);
     get_def_from_doc(&dom)
 }
 
