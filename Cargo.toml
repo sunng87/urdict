@@ -1,12 +1,11 @@
 [package]
 name = "urdict"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Ning Sun <sunng@about.me>"]
 
 [dependencies]
 clap = "*"
 hyper = "*"
-kuchiki =  { git = "https://github.com/SimonSapin/kuchiki" }
 ansi_term = "*"
-string_cache = "*"
 rand = "*"
+select = "*"

@@ -1,5 +1,4 @@
-extern crate kuchiki;
-extern crate string_cache;
+extern crate select;
 extern crate hyper;
 extern crate clap;
 extern crate ansi_term;
