@@ -2,10 +2,14 @@
 name = "urdict"
 version = "0.2.0"
 authors = ["Ning Sun <sunng@about.me>"]
+description = "Urban dictionary commandline tool and dict server"
+license = "MIT"
+keywrods = ["dict", "dictd"]
+repository = "https://github.com/sunng87/urdict"
 
 [dependencies]
-clap = "*"
-hyper = "*"
-ansi_term = "*"
-rand = "*"
-select = "*"
+clap = "1.4.5"
+hyper = "0.6.15"
+ansi_term = "0.6.3"
+rand = "0.3.11"
+select = "0.1.2"

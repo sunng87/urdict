@@ -5,5 +5,12 @@ urdict is a command line urban dictionary,
 
 and a dictd daemon
 
-![screenshot from 2015-09-14 14-32-49](https://cloud.githubusercontent.com/assets/221942/9843514/837edb98-5aed-11e5-988e-d57e2c350165.png)
+![screenshot from 2015-09-14
+ 14-32-49](https://cloud.githubusercontent.com/assets/221942/9843514/837edb98-5aed-11e5-988e-d57e2c350165.png)
 
+## Installation
+
+With latest cargo, you can simply run: `cargo install urdict`
+
+Otherwise, you will have to pull the repository and build by yourself:
+`cargo build --release`
