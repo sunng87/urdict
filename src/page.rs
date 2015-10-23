@@ -86,6 +86,10 @@ pub fn find_word_of_the_day() -> Option<DictDef> {
     find_from_url("https://www.urbandictionary.com/")
 }
 
+pub fn get_random_word() -> Option<DictDef> {
+    find_from_url("https://www.urbandictionary.com/random.php")
+}
+
 pub fn find_on_urban_dict (word: &str) -> Option<DictDef> {
     let url = urban_dict_url(word);
     find_from_url(&url)

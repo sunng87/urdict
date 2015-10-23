@@ -22,6 +22,7 @@ fn main() {
         .about("Urban Dictionary from command-line")
         .args_from_usage(
             "[WORD]... 'Word to find on Urban Dictionary'
+             [random]... -r 'Select a random word'
              [compact]... -c 'Output definition only'
              [sound]... -s 'Print a sound url only'
              [daemon]... -d 'Run urdict as a dictd server'
@@ -40,11 +41,12 @@ fn main() {
         return;
     }
 
-    let def = if let Some(word) = matches.value_of("WORD"){
-        page::find_on_urban_dict(&word)
-    } else {
-        page::find_word_of_the_day()
+    let def = match (matches.value_of("WORD"), matches.occurrences_of("random") > 0) {
+        (Some(word), _) => page::find_on_urban_dict(&word),
+        (_, false) => page::find_word_of_the_day(),
+        (_, true) => page::get_random_word()
     };
+
     if let Some(def) = def {
         if matches.occurrences_of("debug") > 0 {
             println!("{:?}", def);
