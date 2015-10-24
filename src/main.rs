@@ -17,7 +17,7 @@ mod dictd;
 
 fn main() {
     let matches = App::new("urdict")
-        .version("0.2.0")
+        .version("0.3.1")
         .author("Ning Sun <sunng@about.me>")
         .about("Urban Dictionary from command-line")
         .args_from_usage(
