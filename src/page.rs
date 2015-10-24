@@ -24,7 +24,7 @@ impl DictDef {
 
 fn urban_dict_url (word: &str) -> String {
     let mut s = String::new();
-    s.push_str("http://www.urbandictionary.com/define.php?term=");
+    s.push_str("https://www.urbandictionary.com/define.php?term=");
     s.push_str(word);
     s
 }
@@ -83,7 +83,11 @@ fn find_from_url(url: &str) -> Option<DictDef> {
 }
 
 pub fn find_word_of_the_day() -> Option<DictDef> {
-    find_from_url("http://www.urbandictionary.com/")
+    find_from_url("https://www.urbandictionary.com/")
+}
+
+pub fn get_random_word() -> Option<DictDef> {
+    find_from_url("https://www.urbandictionary.com/random.php")
 }
 
 pub fn find_on_urban_dict (word: &str) -> Option<DictDef> {
