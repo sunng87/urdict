@@ -2,7 +2,7 @@ use std::io::Read;
 
 use hyper::Client;
 
-use select::dom::Dom;
+use select::document::Document;
 use select::predicate::*;
 
 #[derive(Debug)]
@@ -33,7 +33,7 @@ fn json_list_to_strings(json: &str) -> Vec<String> {
     json[1..json.len()-1].split(", ").map(|s| s[1..s.len()-1].to_owned()).collect()
 }
 
-fn get_def_from_doc (doc: &Dom) -> Option<DictDef> {
+fn get_def_from_doc (doc: &Document) -> Option<DictDef> {
     if let Some(panel) = doc.find(Class("def-panel")).first() {
         if let Some(word) = panel.find(Class("word")).first() {
             let word = word.text();
@@ -78,7 +78,7 @@ fn find_from_url(url: &str) -> Option<DictDef> {
         resp.read_to_string(&mut body).unwrap();
     }
 
-    let dom = Dom::from_str(&body);
+    let dom = Document::from_str(&body);
     get_def_from_doc(&dom)
 }
 
