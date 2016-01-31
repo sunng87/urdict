@@ -55,7 +55,7 @@ fn main() {
         if matches.occurrences_of("sound") == 0 {
             let compact = matches.occurrences_of("compact") > 0;
             if !compact {
-                println!("{}", Yellow.bold().paint(&def.word));
+                println!("{}", Yellow.bold().paint(def.word));
             }
             println!("{}", def.def);
             if !compact && def.example.is_some(){
