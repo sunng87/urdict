@@ -56,6 +56,21 @@ let mut reader = BufReader::new(stream.try_clone().unwrap());
                 },
                 "client" => {
                     stream.write("250 ok\r\n".as_bytes()).unwrap();
+                },
+                "show" => {
+                    match pieces[1].to_lowercase().as_ref() {
+                        "db" => {
+                            stream.write("110 1 database present\r\n".as_bytes()).unwrap();
+                            stream.write("urdict \"Urban Dictionary\"\r\n".as_bytes()).unwrap();
+                            stream.write(".\r\n".as_bytes()).unwrap();
+                            stream.write("250 ok\r\n".as_bytes()).unwrap();
+                        },
+                        _ => {
+                            println!("{}", line.trim());
+                        }
+                    }
+
+
                 }
                 _ => {
                     println!("{}", line.trim());
