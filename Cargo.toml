@@ -8,8 +8,8 @@ keywords = ["dict", "dictd"]
 repository = "https://github.com/sunng87/urdict"
 
 [dependencies]
-clap = "2.0.1"
-hyper = "0.7.2"
-ansi_term = "0.7.1"
-rand = "0.3.13"
-select = "0.2.2"
+clap = "2.30.0"
+ansi_term = "0.10.2"
+rand = "0.4.2"
+select = "0.4.2"
+reqwest = "0.8.5"

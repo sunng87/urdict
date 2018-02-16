@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use hyper::Client;
+use reqwest::Client;
 
 use select::document::Document;
 use select::predicate::*;
@@ -34,20 +34,20 @@ fn json_list_to_strings(json: &str) -> Vec<String> {
 }
 
 fn get_def_from_doc (doc: &Document) -> Option<DictDef> {
-    if let Some(panel) = doc.find(Class("def-panel")).first() {
-        if let Some(word) = panel.find(Class("word")).first() {
+    if let Some(panel) = doc.find(Class("def-panel")).into_selection().first() {
+        if let Some(word) = panel.find(Class("word")).into_selection().first() {
             let word = word.text();
 
-            let def = panel.find(Class("meaning")).first().unwrap().text();
+            let def = panel.find(Class("meaning")).into_selection().first().unwrap().text();
             let defid = panel.attr("data-defid").unwrap_or("").to_owned();
 
-            let example = panel.find(Class("example")).first().and_then(|e| Some(e.text()));
-            let author = panel.find(Class("author")).first().and_then(|e| Some(e.text())).unwrap_or("".to_owned());
-            let date = panel.find(Class("author")).first().and_then(|e| e.next()).and_then(|e| Some(e.text().trim().to_owned())).unwrap_or("".to_owned());
+            let example = panel.find(Class("example")).into_selection().first().and_then(|e| Some(e.text()));
+            let author = panel.find(Class("author")).into_selection().first().and_then(|e| Some(e.text())).unwrap_or("".to_owned());
+            let date = panel.find(Class("author")).into_selection().first().and_then(|e| e.next()).and_then(|e| Some(e.text().trim().to_owned())).unwrap_or("".to_owned());
 
-            let sounds = panel.find(Class("play-sound")).first().and_then(|e| e.attr("data-urls").and_then(|s| Some(s.to_owned()))).and_then(|l| Some(json_list_to_strings(&l)));
+            let sounds = panel.find(Class("play-sound")).into_selection().first().and_then(|e| e.attr("data-urls").and_then(|s| Some(s.to_owned()))).and_then(|l| Some(json_list_to_strings(&l)));
 
-            let similars = Some(doc.find(Name("ul").and(Class("alphabetical"))).find(Name("li")).find(Name("a")).iter().map(|e| e.text()).collect());
+            let similars = Some(doc.find(Name("ul").and(Class("alphabetical"))).into_selection().find(Name("li")).find(Name("a")).iter().map(|e| e.text()).collect());
 
             Some(DictDef {
                 word: word.trim().to_owned(),
@@ -78,7 +78,7 @@ fn find_from_url(url: &str) -> Option<DictDef> {
         resp.read_to_string(&mut body).unwrap();
     }
 
-    let dom = Document::from_str(&body);
+    let dom = Document::from(body.as_str());
     get_def_from_doc(&dom)
 }
 

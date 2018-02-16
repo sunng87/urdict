@@ -1,8 +1,8 @@
 extern crate select;
-extern crate hyper;
 extern crate clap;
 extern crate ansi_term;
 extern crate rand;
+extern crate reqwest;
 
 use std::io::Write;
 use std::str::FromStr;
@@ -10,7 +10,8 @@ use std::process::exit;
 
 use clap::App;
 use ansi_term::Colour::{Red, Yellow};
-use rand::{thread_rng, sample};
+use rand::thread_rng;
+use rand::seq::sample_iter;
 
 mod page;
 mod dictd;
@@ -68,7 +69,7 @@ fn main() {
         } else {
             if let Some(sounds) = def.sounds {
                 let mut rng = thread_rng();
-                let sample: Vec<&String> = sample(&mut rng, sounds.iter(), 1);
+                let sample: Vec<&String> = sample_iter(&mut rng, sounds.iter(), 1).unwrap();
                 println!("{}", sample[0]);
             } else {
                 exit(128);
