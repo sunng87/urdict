@@ -1,8 +1,8 @@
-extern crate select;
-extern crate clap;
 extern crate ansi_term;
+extern crate clap;
 extern crate rand;
 extern crate reqwest;
+extern crate select;
 
 use std::io::Write;
 use std::str::FromStr;
@@ -29,7 +29,8 @@ fn main() {
              [daemon]... -d 'Run urdict as a dictd server'
              --port=[port] 'The port to listen to, default: 2628'
              --host=[host] 'The host to listen to, default: 127.0.0.1'
-             [debug]... --debug 'Print debug information'")
+             [debug]... --debug 'Print debug information'",
+        )
         .get_matches();
 
     // running as daemon
@@ -42,10 +43,13 @@ fn main() {
         return;
     }
 
-    let def = match (matches.value_of("WORD"), matches.occurrences_of("random") > 0) {
+    let def = match (
+        matches.value_of("WORD"),
+        matches.occurrences_of("random") > 0,
+    ) {
         (Some(word), _) => page::find_on_urban_dict(&word),
         (_, false) => page::find_word_of_the_day(),
-        (_, true) => page::get_random_word()
+        (_, true) => page::get_random_word(),
     };
 
     if let Some(def) = def {
@@ -59,12 +63,15 @@ fn main() {
                 println!("{}", Yellow.bold().paint(def.word));
             }
             println!("{}", def.def);
-            if !compact && def.example.is_some(){
+            if !compact && def.example.is_some() {
                 println!("");
                 println!("Example:\n{}", def.example.unwrap());
             }
             if !compact {
-                println!("(Author: {}, {}, Def ID: {})", def.contributor, def.date, def.id);
+                println!(
+                    "(Author: {}, {}, Def ID: {})",
+                    def.contributor, def.date, def.id
+                );
             }
         } else {
             if let Some(sounds) = def.sounds {
